@@ -6,16 +6,20 @@ releases:
   - name: external-dns-cloudflare
     chart: stable/external-dns
     version: 1.7.9
-    namespace: external-dns-cloudflare
+    namespace: external-dns-route53
     values:
-      - domainFilters: [{{ env "FQDN" | default "parente.dev" }}]
+      - domainFilters: [{{ env "FQDN" }}]
         rbac:
           create: true
         txtOwnerId: z2jh-aws
-        provider: cloudflare
-        cloudflare:
-          apiKey: {{ requiredEnv "CLOUDFLARE_API_KEY" }}
-          email: {{ env "CLOUDFLARE_EMAIL" | default "parente@gmail.com" }}
+        provider: aws
+        domainFilter: jupyterhub
+        aws:
+          region: {{ requiredEnv "AWS_REGION" }}
+          zoneType: {{ env "AWS_ZONE_TYPE" | default "public" }}
+          credentials:
+            accessKey: {{ requiredEnv "AWS_ACCESS_KEY_ID" }}
+            secretKey: {{ requiredEnV "AWS_SECRET_KEY" }}
   - name: nginx-ingress
     chart: stable/nginx-ingress
     version: 1.6.16
